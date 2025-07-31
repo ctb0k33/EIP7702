@@ -13,10 +13,6 @@ dist/
 out/
 **/out/
 
-# Libraries
-lib/
-**/lib/
-
 # Cache directories
 cache/
 **/cache/
