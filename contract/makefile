@@ -15,4 +15,7 @@ RPC_URL = $(BASE_RPC_URL)
 endif
 
 deployGasSponsor:
-	forge script script/DeployGasSponsor.s.sol:DeployGasSponsor --rpc-url $(RPC_URL) --account defaultKey --sender $(WALLET_ADDRESS) --broadcast
+	forge script script/DeployGasSponsor.s.sol:DeployGasSponsor --rpc-url $(RPC_URL) --account defaultKey --sender $(WALLET_ADDRESS) --broadcast --verify --etherscan-api-key $(ETHERSCAN_MULTICHAIN_API_KEY)
+
+deployNonceTracker:
+	forge script script/DeployNonceTracker.s.sol:DeployNonceTracker --rpc-url $(RPC_URL) --account defaultKey --sender $(WALLET_ADDRESS) --broadcast --verify --etherscan-api-key $(ETHERSCAN_MULTICHAIN_API_KEY)

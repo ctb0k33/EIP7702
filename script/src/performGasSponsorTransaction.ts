@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
-import { PROVIDER, USER_ADDRESS, SPONSOR_ADDRESS, USER_PRIVATE_KEY, SPONSOR_PRIVATE_KEY, GAS_SPONSOR_CONTRACT, NONCE, CHAIN_ID, RECIPIENT_ADDRESS, NFT_CONTRACT_ADDRESS } from "./constant";
-import {SPONSOR_CONTRACT_ABI} from "./abi";
+import { PROVIDER, USER_ADDRESS, SPONSOR_ADDRESS, USER_PRIVATE_KEY, SPONSOR_PRIVATE_KEY, GAS_SPONSOR_CONTRACT, CHAIN_ID, RECIPIENT_ADDRESS,NONCE_TRACKER_CONTRACT } from "./constant";
+import {SPONSOR_CONTRACT_ABI, NONCE_TRACKER_ABI} from "./abi";
 import { signSponsorshipMessage } from "./eip7702";
 
 const performGasSponsorTransaction = async () => {
@@ -30,8 +30,11 @@ const performGasSponsorTransaction = async () => {
     }
 
     const eoaContract = new ethers.Contract(USER_ADDRESS, SPONSOR_CONTRACT_ABI, PROVIDER);
+    const nonceTrackerContract = new ethers.Contract(NONCE_TRACKER_CONTRACT, NONCE_TRACKER_ABI, PROVIDER);
+    const nextNonce = await nonceTrackerContract.getNextNonce(USER_ADDRESS);
+    console.log('Next nonce:', nextNonce);
 
-    let nonceToUse = BigInt(NONCE) + 1n;
+    let nonceToUse = BigInt(nextNonce);
 
     const signature = await signSponsorshipMessage(
       transferCall,
@@ -76,7 +79,7 @@ const performGasSponsorTransaction = async () => {
     }
 
     const executeData = eoaContract.interface.encodeFunctionData(
-      'execute((bytes,address,uint256),address,uint256,bytes)', 
+      'execute((bytes,address,uint256),address,bytes)', 
       [
         {
           data: transferCall.data,
@@ -84,7 +87,6 @@ const performGasSponsorTransaction = async () => {
           value: transferCall.value
         }, // Call struct as object
         SPONSOR_ADDRESS,
-        nonceToUse,
         signature
       ]
     );

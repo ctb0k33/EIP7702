@@ -5,6 +5,19 @@ export const SPONSOR_CONTRACT_ABI= [
   },
   {
    "type": "function",
+   "name": "NONCE_TRACKER",
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "",
+     "type": "address",
+     "internalType": "address"
+    }
+   ],
+   "stateMutability": "view"
+  },
+  {
+   "type": "function",
    "name": "TEST_TOKEN",
    "inputs": [],
    "outputs": [
@@ -28,36 +41,6 @@ export const SPONSOR_CONTRACT_ABI= [
     }
    ],
    "stateMutability": "view"
-  },
-  {
-   "type": "function",
-   "name": "execute",
-   "inputs": [
-    {
-     "name": "calls",
-     "type": "tuple[]",
-     "internalType": "struct GasSponsor.Call[]",
-     "components": [
-      {
-       "name": "data",
-       "type": "bytes",
-       "internalType": "bytes"
-      },
-      {
-       "name": "to",
-       "type": "address",
-       "internalType": "address"
-      },
-      {
-       "name": "value",
-       "type": "uint256",
-       "internalType": "uint256"
-      }
-     ]
-    }
-   ],
-   "outputs": [],
-   "stateMutability": "payable"
   },
   {
    "type": "function",
@@ -91,14 +74,39 @@ export const SPONSOR_CONTRACT_ABI= [
      "internalType": "address"
     },
     {
-     "name": "nonce",
-     "type": "uint256",
-     "internalType": "uint256"
-    },
-    {
      "name": "signature",
      "type": "bytes",
      "internalType": "bytes"
+    }
+   ],
+   "outputs": [],
+   "stateMutability": "payable"
+  },
+  {
+   "type": "function",
+   "name": "execute",
+   "inputs": [
+    {
+     "name": "calls",
+     "type": "tuple[]",
+     "internalType": "struct GasSponsor.Call[]",
+     "components": [
+      {
+       "name": "data",
+       "type": "bytes",
+       "internalType": "bytes"
+      },
+      {
+       "name": "to",
+       "type": "address",
+       "internalType": "address"
+      },
+      {
+       "name": "value",
+       "type": "uint256",
+       "internalType": "uint256"
+      }
+     ]
     }
    ],
    "outputs": [],
@@ -126,44 +134,6 @@ export const SPONSOR_CONTRACT_ABI= [
      "name": "",
      "type": "uint256",
      "internalType": "uint256"
-    }
-   ],
-   "stateMutability": "view"
-  },
-  {
-   "type": "function",
-   "name": "isNonceUsed",
-   "inputs": [
-    {
-     "name": "nonce",
-     "type": "uint256",
-     "internalType": "uint256"
-    }
-   ],
-   "outputs": [
-    {
-     "name": "",
-     "type": "bool",
-     "internalType": "bool"
-    }
-   ],
-   "stateMutability": "view"
-  },
-  {
-   "type": "function",
-   "name": "nonceUsed",
-   "inputs": [
-    {
-     "name": "",
-     "type": "uint256",
-     "internalType": "uint256"
-    }
-   ],
-   "outputs": [
-    {
-     "name": "",
-     "type": "bool",
-     "internalType": "bool"
     }
    ],
    "stateMutability": "view"
@@ -260,11 +230,6 @@ export const SPONSOR_CONTRACT_ABI= [
   },
   {
    "type": "error",
-   "name": "GasSponsor__NonceAlreadyUsed",
-   "inputs": []
-  },
-  {
-   "type": "error",
    "name": "GasSponsor__NotAuthorized",
    "inputs": []
   },
@@ -282,5 +247,77 @@ export const SPONSOR_CONTRACT_ABI= [
    "type": "error",
    "name": "ReentrancyGuardReentrantCall",
    "inputs": []
+  }
+ ]
+export const NONCE_TRACKER_ABI = [
+  {
+   "type": "function",
+   "name": "getNextNonce",
+   "inputs": [
+    {
+     "name": "account",
+     "type": "address",
+     "internalType": "address"
+    }
+   ],
+   "outputs": [
+    {
+     "name": "",
+     "type": "uint256",
+     "internalType": "uint256"
+    }
+   ],
+   "stateMutability": "view"
+  },
+  {
+   "type": "function",
+   "name": "nonces",
+   "inputs": [
+    {
+     "name": "account",
+     "type": "address",
+     "internalType": "address"
+    }
+   ],
+   "outputs": [
+    {
+     "name": "nonce",
+     "type": "uint256",
+     "internalType": "uint256"
+    }
+   ],
+   "stateMutability": "view"
+  },
+  {
+   "type": "function",
+   "name": "useNonce",
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "nonce",
+     "type": "uint256",
+     "internalType": "uint256"
+    }
+   ],
+   "stateMutability": "nonpayable"
+  },
+  {
+   "type": "event",
+   "name": "NonceUsed",
+   "inputs": [
+    {
+     "name": "account",
+     "type": "address",
+     "indexed": true,
+     "internalType": "address"
+    },
+    {
+     "name": "nonce",
+     "type": "uint256",
+     "indexed": false,
+     "internalType": "uint256"
+    }
+   ],
+   "anonymous": false
   }
  ]

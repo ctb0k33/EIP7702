@@ -6,6 +6,7 @@ import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import {MessageHashUtils} from "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import {NonceTracker} from "./NonceTracker.sol";
 
 contract GasSponsor is ReentrancyGuard {
     using ECDSA for bytes32;
@@ -16,12 +17,11 @@ contract GasSponsor is ReentrancyGuard {
         0x0000000000000000000000000000000000000000;
     uint256 public constant TEST_TOKEN_PER_TRANSACTION = 1 ether;
 
-    // can cause storage collision (CARE !!!)
-    // not share between different EOA
-    mapping(uint256 => bool) public nonceUsed;
+    // replace with actual nonce tracker address
+    address public constant NONCE_TRACKER =
+        0x0000000000000000000000000000000000000000;
 
     error GasSponsor__InvalidSigner();
-    error GasSponsor__NonceAlreadyUsed();
     error GasSponsor__InsufficientTestTokenBalance();
     error GasSponsor__InsufficientETHBalance();
     error GasSponsor__TestTokenTransferFailed();
@@ -44,12 +44,14 @@ contract GasSponsor is ReentrancyGuard {
         uint256 value;
     }
 
+    // gas sponsor for a single transaction
     function execute(
         Call memory userCall,
         address sponsor,
-        uint256 nonce,
         bytes calldata signature
     ) external payable nonReentrant {
+        uint256 nonce = NonceTracker(NONCE_TRACKER).useNonce();
+
         bytes32 digest = keccak256(
             abi.encodePacked(
                 block.chainid,
@@ -64,9 +66,6 @@ contract GasSponsor is ReentrancyGuard {
         address recovered = digest.toEthSignedMessageHash().recover(signature);
         // in EIP7702- address this is the EOA
         if (recovered != address(this)) revert GasSponsor__InvalidSigner();
-
-        if (nonceUsed[nonce]) revert GasSponsor__NonceAlreadyUsed();
-        nonceUsed[nonce] = true;
 
         if (address(this).balance < userCall.value)
             revert GasSponsor__InsufficientETHBalance();
@@ -114,10 +113,6 @@ contract GasSponsor is ReentrancyGuard {
             );
             if (!success) revert GasSponsor__ExternalCallFailed();
         }
-    }
-
-    function isNonceUsed(uint256 nonce) public view returns (bool) {
-        return nonceUsed[nonce];
     }
 
     function getEOATestTokenBalance() external view returns (uint256) {
