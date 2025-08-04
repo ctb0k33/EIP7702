@@ -55,19 +55,16 @@ const performGasSponsorTransaction = async () => {
     console.log('4. Nonce to use:', nonceToUse);
     console.log('5. Chain ID:', CHAIN_ID);
 
-    const verifyDigest = ethers.keccak256(
-      ethers.AbiCoder.defaultAbiCoder().encode(
-        ['uint256', 'address', 'uint256', 'bytes32', 'address', 'uint256'],
-        [
-          CHAIN_ID,
-          transferCall.to,
-          transferCall.value,
-          ethers.keccak256(transferCall.data),
-          SPONSOR_ADDRESS,
-          Number(nonceToUse)
-        ]
-      )
-    );
+    // Use the same packing method as signature generation
+    const verifyPackedData = ethers.concat([
+      ethers.toBeHex(CHAIN_ID, 32),
+      ethers.getAddress(transferCall.to),
+      ethers.toBeHex(transferCall.value, 32),
+      ethers.keccak256(transferCall.data),
+      ethers.getAddress(SPONSOR_ADDRESS),
+      ethers.toBeHex(Number(nonceToUse), 32)
+    ]);
+    const verifyDigest = ethers.keccak256(verifyPackedData);
     try {
       const recoveredAddress = ethers.verifyMessage(ethers.getBytes(verifyDigest), signature);
       console.log('6. Signature verification:');
