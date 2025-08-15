@@ -7,6 +7,7 @@ import {MessageHashUtils} from "@openzeppelin/contracts/utils/cryptography/Messa
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import {NonceTracker} from "./NonceTracker.sol";
+import {IERC721Receiver} from "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 
 contract GasSponsor is ReentrancyGuard {
     using ECDSA for bytes32;
@@ -121,6 +122,10 @@ contract GasSponsor is ReentrancyGuard {
 
     function getEOAETHBalance() external view returns (uint256) {
         return address(this).balance;
+    }
+
+    function onERC721Received(address, address, uint256, bytes calldata) external pure returns (bytes4) {
+        return IERC721Receiver.onERC721Received.selector;
     }
 
     receive() external payable {}
